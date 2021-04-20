@@ -14,7 +14,6 @@ export class MusicService {
 	constructor() { }
 
 
-
 	getMusic(): Observable<Song[]> {
 		const list = of(this.FAUXLIST);
 		return list;
