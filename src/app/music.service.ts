@@ -24,6 +24,11 @@ export class MusicService {
 	play(): void {
 		window.AudioContext = window.AudioContext;// || window.webkitAudioContext;
 		const audioContext = new AudioContext();
+		const gainNode = audioContext.createGain();
+		gainNode.gain.value=0.2
+
+
+
 		let source = audioContext.createBufferSource();
 		let currentBuffer = null;
 		let timeRatio=0;
@@ -40,10 +45,16 @@ export class MusicService {
 		  for (let i = 0; i < samples; i++) {
 		    let blockStart = blockSize * i; // the location of the first sample in the block
 		    let sum = 0;
+		    let max=0;
 		    for (let j = 0; j < blockSize; j++) {
-		      sum = sum + Math.abs(rawData[blockStart + j]); // find the sum of all the samples in the block
+		    	let v=Math.abs(rawData[blockStart + j])
+		      sum = sum + v; 
+		      if(v>max)
+		      	max=v;
+
 		    }
-		    filteredData.push(sum / blockSize); // divide the sum by the block size to get the average
+		    let avg=sum / blockSize
+		    filteredData.push(max);
 		  }
 		  return filteredData;
 		};
@@ -66,7 +77,7 @@ export class MusicService {
 				.then(audioBuffer => {
 					source.buffer = audioBuffer;
 
-        source.connect(audioContext.destination);
+        source.connect(gainNode).connect(audioContext.destination);
         source.loop = true;
         source.start(0);
         let tester=document.querySelector('#test')

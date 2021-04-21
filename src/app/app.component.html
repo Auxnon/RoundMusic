@@ -1,4 +1,27 @@
-<app-music-banner></app-music-banner>
-<app-music-list-container></app-music-list-container>
-<app-music-controls></app-music-controls>
+
+
+
 <div id="test"></div>
+
+
+<div id="background"></div>
+    <main>
+        <button class="button-back"></button>
+        <app-music-banner></app-music-banner>
+        <button class="button-nav"> </button>
+        <svg class="round-progress-bar" width="384" height="384" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 12 C 20 252 352 252 372 12" />
+            <!--<path d="M12 12 C 20 252 352 252 372 12" />-->
+            <path d="M12 12 C 20 252 352 252 372 12" />
+            <circle cx="150" cy="150" r="6" />
+        </svg>
+        <span class="time"></span>
+        <app-music-list-container></app-music-list-container>
+
+        <!--<div class="button-control-row">
+            <button class="button-last"></button>
+            <button class="button-play"></button>
+            <button class="button-next"></button>
+        </div>-->
+        <app-music-controls></app-music-controls>
+    </main>

@@ -1,0 +1,20 @@
+#music-portrait {
+        position: absolute;
+        left: 50%;
+        top: 0;
+        transform: translate(-50%);
+        width: 300px;
+        height: 500px;
+        border-radius: 0 0 150px 150px;
+        background: red;
+        overflow: hidden;
+        box-shadow: 0 0 36px #0009;
+
+        img {
+            position: absolute;
+            width: auto;
+            height: 100%;
+            left: -50%;
+            transition: transform 0.02s;
+        }
+    }
