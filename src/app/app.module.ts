@@ -8,6 +8,7 @@ import { MusicListContainerComponent } from './music-list-container/music-list-c
 import { MusicBannerComponent } from './music-banner/music-banner.component';
 import { MusicControlsComponent } from './music-controls/music-controls.component';
 import { SimpleTimePipe } from './simple-time.pipe';
+import { MusicSeekerComponent } from './music-seeker/music-seeker.component';
 
 @NgModule({
   declarations: [
@@ -16,7 +17,8 @@ import { SimpleTimePipe } from './simple-time.pipe';
     MusicListContainerComponent,
     MusicBannerComponent,
     MusicControlsComponent,
-    SimpleTimePipe
+    SimpleTimePipe,
+    MusicSeekerComponent
   ],
   imports: [
     BrowserModule,

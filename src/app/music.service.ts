@@ -11,6 +11,10 @@ export class MusicService {
 		{ id: 0, artist: 'Scattle', name: 'TimeLapse', url: './scattle.mp4', length: 400 },
 		{ id: 1, artist: 'ColdPlay', name: 'Viva La Vida', url: './vivalavida.mp4', length: 180 }
 	];
+
+	currentAmp:number=0;
+	playing:boolean=false;
+
 	constructor() { }
 
 	getMusic(): Observable<Song[]> {
@@ -20,6 +24,13 @@ export class MusicService {
 	test(): void {
 		// if(this.FAUXLIST[0].length)
 		// 	this.FAUXLIST[0].length--;
+	}
+
+	getAmp():number{
+		return this.currentAmp;
+	}
+	getPlaying():boolean{
+		return this.playing;
 	}
 	play(): void {
 		window.AudioContext = window.AudioContext;// || window.webkitAudioContext;
@@ -81,11 +92,14 @@ export class MusicService {
         source.loop = true;
         source.start(0);
         let tester=document.querySelector('#test')
+        let temp=this;//FIX
         setInterval(function(){
         	let index=Math.floor(audioContext.currentTime/timeRatio)
         	let value=chunk?chunk[index]:undefined;
-        	if(tester && value && tester instanceof HTMLElement)
-        		tester.style.transform='scale(1,'+value+')'
+        	if(tester && value && tester instanceof HTMLElement){
+        		tester.style.transform='scale(1,'+value+')';
+        		temp.currentAmp=value;
+        	}
         	//console.log(index,value,audioContext.currentTime)
         },1)
 					visualize(normalizeData(filterData(audioBuffer)))

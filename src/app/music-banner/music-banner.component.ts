@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit,ElementRef } from '@angular/core';
 
 @Component({
   selector: 'app-music-banner',
@@ -7,9 +7,15 @@ import { Component, OnInit } from '@angular/core';
 })
 export class MusicBannerComponent implements OnInit {
 
+
+
   constructor() { }
 
   ngOnInit(): void {
   }
 
+
+
 }
+
+
