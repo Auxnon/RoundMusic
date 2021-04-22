@@ -1,0 +1,39 @@
+.time {
+        position: absolute;
+        transform: translate(-50%, -50%);
+    }
+    
+.round-progress-bar {
+
+        /*background: red;*/
+        path {
+            fill: none;
+            stroke: gray;
+            stroke-width: 1px;
+            stroke-linecap: round;
+
+            /*stroke-dasharray: 560px 4px;*/
+            /*566*/
+            &:nth-child(2) {
+                stroke: black;
+                stroke-width: 4px;
+            }
+
+            &:nth-child(3) {
+                stroke: black;
+                stroke-width: 3px;
+            }
+
+        }
+
+        circle {
+            fill: gray;
+            stroke: black;
+            stroke-width: 3px;
+        }
+
+        position: absolute;
+        left: 50%;
+        transform: translate(-50%);
+        top: 350px;
+    }

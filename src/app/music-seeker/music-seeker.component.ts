@@ -9,6 +9,7 @@ import { MusicService } from '../music.service';
 export class MusicSeekerComponent implements OnInit {
 
 	@ViewChild('svgSeeker') svgSeeker?: ElementRef;
+	@ViewChild('waveForm1') waveForm1?: ElementRef;
 	@ViewChild('seekerCircle') seekerCircle?: ElementRef;
 	@ViewChild('seekerTime') seekerTime?: ElementRef;
 	/*@Input() mainElement?:ElementRef;*/
@@ -16,7 +17,8 @@ export class MusicSeekerComponent implements OnInit {
 	svgSelected: boolean = false;
 	wave={amp:0,offset:0,alt:false,dir:1}
 
-	progress = { x: 0, y: 0, r: 0 };
+
+	progress = { x: 0, y: 0, r: 0, timeRatio:0 };
 
 	constructor(private musicService: MusicService) { }
 
@@ -71,8 +73,12 @@ export class MusicSeekerComponent implements OnInit {
 		//round.style.strokeDasharray = Math.floor(566 * v) + 'px ' + Math.floor(566 * end + 1) + 'px';
 
 	}
-	@HostListener('window:pointermove', ['$event'])
+	@HostListener('window:pointerup', ['$event'])
 	hookPointerUp(event: PointerEvent): void {
+		if(this.svgSelected){
+			this.musicService.setTime(this.progress.timeRatio)
+			console.log(this.progress.timeRatio)
+		}
 		this.svgSelected = false;
 	}
 
@@ -85,6 +91,7 @@ export class MusicSeekerComponent implements OnInit {
 			let r = Math.atan2(y, x - 180)
 			this.drawCircle(r)
 			this.progress.r = r;
+			this.progress.timeRatio=(1-r)/Math.PI
 			let end = r / Math.PI;
 			let v = 1 - end;
 		}
@@ -128,6 +135,10 @@ export class MusicSeekerComponent implements OnInit {
 	}
 
 	drawProgressBar(): void {
+		const ratio = Math.PI / 32;
+		const halfR = Math.PI / 2;
+
+		let speed=this.musicService.getAmp();
 
 		let waveHeight = speed * 120
 		//let halfR=(1-progress.r)/2;
@@ -136,7 +147,7 @@ export class MusicSeekerComponent implements OnInit {
 		this.wave.amp += this.wave.dir * speed * 4;
 		if (this.wave.amp >= waveHeight)
 			this.wave.dir = -1;
-		else if (amp <= 0)
+		else if (this.wave.amp <= 0)
 			this.wave.dir = 1;
 
 		this.wave.offset -= 0.01 * speed
@@ -145,7 +156,7 @@ export class MusicSeekerComponent implements OnInit {
 
 		}
 
-		let multiplier;
+		let multiplier=0;
 		for (let i = 0; i < 32; i++) {
 
 			let r = Math.max(this.progress.r, this.wave.offset + i * ratio),
@@ -154,10 +165,10 @@ export class MusicSeekerComponent implements OnInit {
 
 			if (i % 2 == 0) {
 				s += "Q"
-				x = calcCos(r, 180 + multiplier * (this.wave.alt ? -this.wave.amp : this.wave.amp)), y = calcSin(r, 180 + multiplier * (this.wave.alt ? -this.wave.amp : this.wave.amp))
+				x = this._calcCos(r, 180 + multiplier * (this.wave.alt ? -this.wave.amp : this.wave.amp)), y = this._calcSin(r, 180 + multiplier * (this.wave.alt ? -this.wave.amp : this.wave.amp))
 				this.wave.alt = !this.wave.alt
 			} else {
-				x = calcCos(r, 180), y = calcSin(r, 180)
+				x = this._calcCos(r, 180), y = this._calcSin(r, 180)
 			}
 
 			//half={x:p.x+(x-p.x)/2,y:p.y+(y-p.y)/2};
@@ -168,13 +179,22 @@ export class MusicSeekerComponent implements OnInit {
 
 		}
 		let end = Math.PI + this.wave.offset
-		s += "Q " + calcCos(end, 180 + multiplier * (this.wave.alt ? -this.wave.amp : this.wave.amp)) + " " + calcSin(end, 180 + multiplier * (this.wave.alt ? -this.wave.amp : this.wave.amp)) + " 12 12"
-		testPath.setAttribute('d', s);
+		s += "Q " + this._calcCos(end, 180 + multiplier * (this.wave.alt ? -this.wave.amp : this.wave.amp)) + " " + this._calcSin(end, 180 + multiplier * (this.wave.alt ? -this.wave.amp : this.wave.amp)) + " 12 12"
+		if(this.waveForm1)
+			this.waveForm1.nativeElement.setAttribute('d', s);
+	}
+
+	private _calcCos(n:number, f:number) {
+			return Math.cos(n) * f + 192
+	}
+
+	private _calcSin(n:number, f:number) {
+			return Math.sin(n) * f + 12
 	}
 
 
 	initVisualizer() {
-		let svg = this.svgSeeker.nativeElement;
+		/*let svg = this.svgSeeker.nativeElement;
 
 		let svgSelected = false;
 		let testPath = svg.children[1];
@@ -187,20 +207,7 @@ export class MusicSeekerComponent implements OnInit {
 		//round.style.strokeDasharray=' 56px 4px';
 		//let v = 1;
 		//let dir = 1;
-		/*
-				setInterval(()=>{
-					v-=0.01*dir
-					if(v<=0){
-						dir=-1
-						v=0;
-					}else if(v>=1){
-						dir=-1;
-						v=1;
-					}
-					let end=1-v;
-					round.style.strokeDasharray=Math.floor(566*v)+'px '+Math.floor(566*end +1)+'px';
-	
-				},100)*/
+		
 		let ratio = Math.PI / 32;
 
 		let p = { x: 0, y: 0 }
@@ -224,19 +231,22 @@ export class MusicSeekerComponent implements OnInit {
 
 		let offset = 0;
 		let imgScaleTime = 0;
-
+	*/
 
 
 		setInterval(() => {
-			if (playing) {
-				progress.r -= 0.001
-				speed = Math.random();
-				renderCircle(progress.r)
+			if (this.musicService.getPlaying()) {
+				if(!this.svgSelected)
+					this.progress.timeRatio=this.musicService.getTimeRatio();
+				else
+					this.progress.r =(1-this.progress.timeRatio)*Math.PI
+				//speed = Math.random();
+				this.drawCircle(this.progress.r)
 
 			}
-			if (playing || svgSelected)
-				renderProgressBar();
 
+			if (this.musicService.getPlaying() || this.svgSelected)
+				this.drawProgressBar();
 
 		}, 1)
 	}
