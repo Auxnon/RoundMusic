@@ -68,6 +68,7 @@ export class MusicService {
 		    filteredData.push(max);
 		  }
 		  return filteredData;
+		  
 		};
 
 
