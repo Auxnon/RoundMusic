@@ -16,6 +16,7 @@ export class MusicService {
 	currentAmp: number = 0;
 	currentTime: number = 0;
 	currentDuration: number = 0;
+	cycleInterval: number = 0;
 
 
 	audioContext = new AudioContext();
@@ -23,12 +24,13 @@ export class MusicService {
 	currentAudioSource?: AudioBufferSourceNode;
 	audioGainNode: GainNode = this.audioContext.createGain();
 
-	audioHardwareOffset:number=0;
+	audioHardwareOffset: number = 0;
 
 	currentVisualRatio: number = 0;
 	currentAudioChunks: number[] = [];
 
 	playing: boolean = true;
+
 
 
 
@@ -44,18 +46,19 @@ export class MusicService {
 	}
 
 	getAmp(): number {
+
 		return this.currentAmp;
 	}
 
 	getPlaying(): boolean {
 		return this.playing;
 	}
-	getTime():number {
-		return this.audioContext.currentTime-this.audioHardwareOffset;
+	getTime(): number {
+		return this.audioContext.currentTime - this.audioHardwareOffset;
 	}
 	getTimeRatio() {
 		let r = this.getTime() / this.currentDuration
-		return (isNaN(r) ? 0 : r);
+		return (isNaN(r) || !isFinite(r) ? 0 : r);
 	}
 	getDuration(): number {
 		return this.currentDuration;
@@ -75,7 +78,7 @@ export class MusicService {
 			this.currentAudioSource.connect(this.audioGainNode).connect(this.audioContext.destination);
 
 			this.currentAudioSource.start(0, time);
-			this.audioHardwareOffset=this.audioContext.currentTime;
+			this.audioHardwareOffset = this.audioContext.currentTime;
 		}
 
 	}
@@ -129,8 +132,8 @@ export class MusicService {
 
 		const visualize = (buffer: number[]) => {
 			//console.log(buffer)
-		
-			this.currentAudioChunks=buffer;
+
+			this.currentAudioChunks = buffer;
 		}
 
 		const visualizeAudio = (url: RequestInfo) => {
@@ -146,20 +149,21 @@ export class MusicService {
 					this.currentAudioSource.connect(this.audioGainNode).connect(this.audioContext.destination);
 					//this.currentAudioSource.loop = true;
 					this.currentAudioSource.start(0);
-					this.audioHardwareOffset=this.audioContext.currentTime;
+					this.audioHardwareOffset = this.audioContext.currentTime;
 
-					setInterval(this.cycleWave, 1)
+					this.cycleInterval = window.setInterval(() => { this.cycleWave(this) }, 1)
 					visualize(normalizeData(filterData(audioBuffer)))
 				});
 		};
 
 		visualizeAudio('./assets/scattle.mp3')
 	}
-	
 
-	cycleWave(): void {
-		let index = Math.floor(this.getTime()/ this.currentVisualRatio)
-		let value = this.currentAudioChunks ? this.currentAudioChunks[index] : undefined;
+
+	cycleWave(serviceReference: MusicService): void {
+		let index = Math.floor(serviceReference.getTime() / serviceReference.currentVisualRatio);
+		let value = serviceReference.currentAudioChunks ? serviceReference.currentAudioChunks[index] : 0;
+		serviceReference.currentAmp = value;
 		/*if (tester && value && tester instanceof HTMLElement) {
 			tester.style.transform = 'scale(1,' + value + ')';
 			temp.currentAmp = value;

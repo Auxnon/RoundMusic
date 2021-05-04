@@ -89,12 +89,12 @@ export class MusicSeekerComponent implements OnInit {
 			let x = event.clientX - svg.getBoundingClientRect().x;
 			let y = event.clientY - svg.getBoundingClientRect().y;
 			let r = Math.atan2(y, x - 180)
-			
-			if (r < -Math.PI/2)
+
+			if (r < -Math.PI / 2)
 				r = Math.PI;
 			else if (r < 0)
 				r = 0
-			
+
 			this.drawCircle(r)
 			this.progress.r = r;
 			this.progress.timeRatio = (1 - (r / Math.PI))
@@ -105,6 +105,11 @@ export class MusicSeekerComponent implements OnInit {
 	}
 
 	drawCircle(radians: number) {
+		if (radians > Math.PI)
+			radians = Math.PI
+		else
+			if (radians < 0)
+				radians = 0
 		if (this.seekerCircle && this.svgSeeker && this.seekerTime) {
 			let circle = this.seekerCircle.nativeElement
 			let time = this.seekerTime.nativeElement;
@@ -115,23 +120,24 @@ export class MusicSeekerComponent implements OnInit {
 			let ty = sin * 180 + 12
 			this.progress.x = tx;
 			this.progress.y = ty;
+			if (!isNaN(tx)) {
+				circle.setAttribute('cx', tx);
+				circle.setAttribute('cy', ty);
+				let rect = this.svgSeeker.nativeElement.getBoundingClientRect();
+				let rect2 = rect;//mainElement.getBoundingClientRect();
 
-			circle.setAttribute('cx', tx);
-			circle.setAttribute('cy', ty);
-			let rect = this.svgSeeker.nativeElement.getBoundingClientRect();
-			let rect2 = rect;//mainElement.getBoundingClientRect();
 
-
-			time.style.left = tx + rect.x - rect2.x + (cos * 30) + 'px'
-			time.style.top = ty + rect.y + (sin * 30) + 'px'
-			let elapsed = (1 - radians / Math.PI) * 3
-			let min = Math.floor(elapsed)
-			let secFactor = elapsed - min;
-			let secs = "" + Math.floor(secFactor * 60);
-			if (secs.length <= 1)
-				secs = "0" + secs;
-			let text = min + ":" + secs
-			time.innerText = text;
+				time.style.left = tx + rect.x - rect2.x + (cos * 30) + 'px'
+				time.style.top = ty + rect.y + (sin * 30) + 'px'
+				let elapsed = (1 - radians / Math.PI) * 3
+				let min = Math.floor(elapsed)
+				let secFactor = elapsed - min;
+				let secs = "" + Math.floor(secFactor * 60);
+				if (secs.length <= 1)
+					secs = "0" + secs;
+				let text = min + ":" + secs
+				time.innerText = text;
+			}
 			/*imgScaleTime++
 			if (imgScaleTime >= 20) {
 				imgScaleTime = 0;
@@ -146,6 +152,7 @@ export class MusicSeekerComponent implements OnInit {
 		const halfR = Math.PI / 2;
 
 		let speed = this.musicService.getAmp();
+		//console.log('speed',speed)
 
 		let waveHeight = speed * 120
 		//let halfR=(1-progress.r)/2;
@@ -257,7 +264,7 @@ export class MusicSeekerComponent implements OnInit {
 			if (this.musicService.getPlaying() || this.svgSelected)
 				this.drawProgressBar();
 
-		}, 1)
+		}, 10)
 	}
 
 
