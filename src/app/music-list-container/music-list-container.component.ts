@@ -22,5 +22,8 @@ export class MusicListContainerComponent implements OnInit {
       this.musicService.test();
     },100)
   }
+  triggerSong(song:Song):void{
+    this.musicService.play(song)
+  }
 
 }

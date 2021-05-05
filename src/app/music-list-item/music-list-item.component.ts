@@ -13,5 +13,4 @@ export class MusicListItemComponent implements OnInit {
   ngOnInit(): void {
   	
   }
-
 }

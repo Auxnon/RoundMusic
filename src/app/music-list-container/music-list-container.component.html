@@ -1,1 +1,1 @@
-<app-music-list-item *ngFor="let song of music" [song]="song"></app-music-list-item>
+<app-music-list-item *ngFor="let song of music" [song]="song" (click)="triggerSong(song)"></app-music-list-item>

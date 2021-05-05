@@ -77,13 +77,11 @@ export class MusicSeekerComponent implements OnInit {
 	hookPointerUp(event: PointerEvent): void {
 		if (this.svgSelected) {
 			this.musicService.setTime(this.progress.timeRatio)
-			console.log(this.progress.timeRatio)
 		}
 		this.svgSelected = false;
 	}
 
 	adjustSeeker(event: PointerEvent) {
-
 		if (this.svgSeeker) {
 			let svg = this.svgSeeker.nativeElement;
 			let x = event.clientX - svg.getBoundingClientRect().x;
@@ -124,10 +122,10 @@ export class MusicSeekerComponent implements OnInit {
 				circle.setAttribute('cx', tx);
 				circle.setAttribute('cy', ty);
 				let rect = this.svgSeeker.nativeElement.getBoundingClientRect();
-				let rect2 = rect;//mainElement.getBoundingClientRect();
+				let rect2 = this.svgSeeker.nativeElement.parentElement.getBoundingClientRect();//mainElement.getBoundingClientRect();
 
 
-				time.style.left = tx + rect.x - rect2.x + (cos * 30) + 'px'
+				time.style.left = tx + rect.x -rect2.x + (cos * 30) + 'px'
 				time.style.top = ty + rect.y + (sin * 30) + 'px'
 				let elapsed = (1 - radians / Math.PI) * 3
 				let min = Math.floor(elapsed)
@@ -148,11 +146,13 @@ export class MusicSeekerComponent implements OnInit {
 	}
 
 	drawProgressBar(): void {
-		const ratio = Math.PI / 32;
-		const halfR = Math.PI / 2;
+		const length = (Math.PI - this.progress.r)
+		const segments = Math.ceil(4*length / Math.PI) *16
+		const ratio = length / segments;
+		const halfR = length / 2;
 
 		let speed = this.musicService.getAmp();
-		//console.log('speed',speed)
+
 
 		let waveHeight = speed * 120
 		//let halfR=(1-progress.r)/2;
@@ -165,17 +165,17 @@ export class MusicSeekerComponent implements OnInit {
 			this.wave.dir = 1;
 
 		this.wave.offset -= 0.01 * speed
-		if (this.wave.offset < -ratio * 4) {
+		if (this.wave.offset < -ratio * 2) {
 			this.wave.offset = 0;
-
 		}
+		//console.log('half',halfR,'r',this.progress.r)
 
 		let multiplier = 0;
-		for (let i = 0; i < 32; i++) {
+		for (let i = segments; i > 0; i--) {
 
-			let r = Math.max(this.progress.r, this.wave.offset + i * ratio),
+			let r = Math.max(this.progress.r, Math.PI - (this.wave.offset + i * ratio)),
 				x, y;
-			multiplier = 1 - Math.abs(r - halfR) / halfR;
+			multiplier = 1 - Math.abs((Math.PI - r) - halfR) / halfR;
 
 			if (i % 2 == 0) {
 				s += "Q"
@@ -187,13 +187,15 @@ export class MusicSeekerComponent implements OnInit {
 
 			//half={x:p.x+(x-p.x)/2,y:p.y+(y-p.y)/2};
 
-
-			s += " " + x + " " + y
+			if(i!=1)
+				s += " " + x + " " + y
 			//p={x,y}
 
 		}
-		let end = Math.PI + this.wave.offset
-		s += "Q " + this._calcCos(end, 180 + multiplier * (this.wave.alt ? -this.wave.amp : this.wave.amp)) + " " + this._calcSin(end, 180 + multiplier * (this.wave.alt ? -this.wave.amp : this.wave.amp)) + " 12 12"
+		//let end = Math.PI + this.wave.offsetthis._calcSin(end, 180 + multiplier * (this.wave.alt ? -this.wave.amp 
+		//s += "Q " + this._calcCos(end, 180 + multiplier * (this.wave.alt ? -this.wave.amp : this.wave.amp)) + " " + : this.wave.amp)) + " 12 12"
+		s+=" 12 12"
+		//console.log(s)
 		if (this.waveForm1)
 			this.waveForm1.nativeElement.setAttribute('d', s); //FIX on music end this breaks
 	}

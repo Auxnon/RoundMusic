@@ -8,8 +8,8 @@ import { Song } from './song';
 
 export class MusicService {
 	FAUXLIST: Song[] = [
-		{ id: 0, artist: 'Scattle', name: 'TimeLapse', url: './scattle.mp4', length: 400 },
-		{ id: 1, artist: 'ColdPlay', name: 'Viva La Vida', url: './vivalavida.mp4', length: 180 }
+		{ id: 0, artist: 'Scattle', name: 'TimeLapse', url: 'scattle.mp3', art: 'scattle.jpg', length: 400 },
+		{ id: 1, artist: 'ColdPlay', name: 'Viva La Vida', url: 'vivalavida.mp3', art: 'vivalavida.jpg', length: 180 }
 	];
 
 
@@ -78,25 +78,24 @@ export class MusicService {
 			this.currentAudioSource.connect(this.audioGainNode).connect(this.audioContext.destination);
 
 			this.currentAudioSource.start(0, time);
-			this.audioHardwareOffset = this.audioContext.currentTime -time;
+			this.audioHardwareOffset = this.audioContext.currentTime - time;
 		}
-
 	}
 
-	play(): void {
+	play(song: Song): void {
 		let temp = this;//FIX
-
-		window.AudioContext = window.AudioContext;// || window.webkitAudioContext;
-		this.audioContext;
+		this.playing = false;
+		//window.AudioContext = window.AudioContext;// || window.webkitAudioContext;
+		//this.audioContext;
+		if (this.currentAudioSource) {
+			this.currentAudioSource.stop(0);
+			this.currentAudioSource.disconnect();
+		}
 
 		this.audioGainNode.gain.value = 0.05
 
-
-
-
 		let currentBuffer = null;
 		let timeRatio = 0;
-
 
 		const filterData = (audioBuffer: AudioBuffer) => {
 			console.log('channels', audioBuffer.numberOfChannels)
@@ -124,7 +123,6 @@ export class MusicService {
 
 		};
 
-
 		const normalizeData = (filteredData: number[]) => {
 			const multiplier = Math.pow(Math.max(...filteredData), -1);
 			return filteredData.map(n => n * multiplier);
@@ -132,8 +130,8 @@ export class MusicService {
 
 		const visualize = (buffer: number[]) => {
 			//console.log(buffer)
-
 			this.currentAudioChunks = buffer;
+			this.playing = true;
 		}
 
 		const visualizeAudio = (url: RequestInfo) => {
@@ -156,7 +154,7 @@ export class MusicService {
 				});
 		};
 
-		visualizeAudio('./assets/scattle.mp3')
+		visualizeAudio('./assets/' + song.url)
 	}
 
 

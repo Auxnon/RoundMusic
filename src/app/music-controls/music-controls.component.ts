@@ -14,7 +14,7 @@ export class MusicControlsComponent implements OnInit {
   }
 
   test():void{
-  	this.musicService.play();
+  	//this.musicService.play();
   }
 
 }
