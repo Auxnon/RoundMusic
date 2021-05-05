@@ -32,10 +32,11 @@
 }
 
 main {
-    position: relative;
+    position: absolute;
     height: 100vh;
     width: 500px;
     left: 50%;
+    top:   0;
     transform: translate(-50%);
     box-shadow: 0 0 6px #0005;
 

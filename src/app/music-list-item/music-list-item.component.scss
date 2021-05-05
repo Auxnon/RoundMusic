@@ -1,7 +1,9 @@
 :host{
 	display: block;
 	position: relative;
-	border:  3px solid blue;
+	margin: 2px 0;
+	padding: 1px;
+	box-shadow: 0 3px 8px #5555;
 }
 .time{
 	float: right;
