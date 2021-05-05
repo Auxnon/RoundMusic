@@ -195,7 +195,7 @@ export class MusicSeekerComponent implements OnInit {
 		let end = Math.PI + this.wave.offset
 		s += "Q " + this._calcCos(end, 180 + multiplier * (this.wave.alt ? -this.wave.amp : this.wave.amp)) + " " + this._calcSin(end, 180 + multiplier * (this.wave.alt ? -this.wave.amp : this.wave.amp)) + " 12 12"
 		if (this.waveForm1)
-			this.waveForm1.nativeElement.setAttribute('d', s);
+			this.waveForm1.nativeElement.setAttribute('d', s); //FIX on music end this breaks
 	}
 
 	private _calcCos(n: number, f: number) {

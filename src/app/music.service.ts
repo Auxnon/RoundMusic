@@ -78,7 +78,7 @@ export class MusicService {
 			this.currentAudioSource.connect(this.audioGainNode).connect(this.audioContext.destination);
 
 			this.currentAudioSource.start(0, time);
-			this.audioHardwareOffset = this.audioContext.currentTime;
+			this.audioHardwareOffset = this.audioContext.currentTime -time;
 		}
 
 	}
