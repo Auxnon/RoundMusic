@@ -1,4 +1,5 @@
-import { Component, OnInit,ElementRef } from '@angular/core';
+import { Component, OnInit,ElementRef, Input } from '@angular/core';
+import { MusicService } from '../music.service';
 
 @Component({
   selector: 'app-music-banner',
@@ -7,13 +8,16 @@ import { Component, OnInit,ElementRef } from '@angular/core';
 })
 export class MusicBannerComponent implements OnInit {
 
+@Input() imageSource:string="purple.jpg";
 
-
-  constructor() { }
+  constructor(private musicService:MusicService) { }
 
   ngOnInit(): void {
   }
-  
+  getArt():string{
+  	return this.musicService.getArt();
+  }
+
 
 
 

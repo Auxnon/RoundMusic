@@ -12,7 +12,7 @@ export class MusicService {
 		{ id: 1, artist: 'ColdPlay', name: 'Viva La Vida', url: 'vivalavida.mp3', art: 'vivalavida.jpg', length: 180 }
 	];
 
-
+	currentSong?:Song;
 	currentAmp: number = 0;
 	currentTime: number = 0;
 	currentDuration: number = 0;
@@ -28,6 +28,7 @@ export class MusicService {
 
 	currentVisualRatio: number = 0;
 	currentAudioChunks: number[] = [];
+	peakData: number[] = [];
 
 	playing: boolean = true;
 
@@ -63,6 +64,9 @@ export class MusicService {
 	getDuration(): number {
 		return this.currentDuration;
 	}
+	getArt():string{
+		return (this.currentSong && this.currentSong.art?this.currentSong.art:'purple.jpg');
+	}
 
 	setTime(value: number): void {
 
@@ -96,6 +100,7 @@ export class MusicService {
 
 		let currentBuffer = null;
 		let timeRatio = 0;
+		const peakData: number[] = [];
 
 		const filterData = (audioBuffer: AudioBuffer) => {
 			console.log('channels', audioBuffer.numberOfChannels)
@@ -105,19 +110,41 @@ export class MusicService {
 			this.currentVisualRatio = audioBuffer.duration / samples;
 			this.currentDuration = audioBuffer.duration;
 			const filteredData: number[] = [];
+
 			for (let i = 0; i < samples; i++) {
 				let blockStart = blockSize * i; // the location of the first sample in the block
 				let sum = 0;
 				let max = 0;
+				let lastVal=0;
+				let lastSlope=0;
+				let peaked=0;
 				for (let j = 0; j < blockSize; j++) {
 					let v = Math.abs(rawData[blockStart + j])
 					sum = sum + v;
 					if (v > max)
 						max = v;
 
+					let peak=0
+					let slope=v-lastVal;
+					if(lastSlope>0){
+						if(slope<0){
+
+							//this.peak=1
+							if(v>peaked)
+								peaked=v;
+						}
+					}else{
+						if(slope>0){
+							//this.peak=1
+						}
+					}
+
+					lastVal=v;
+					lastSlope=slope;
 				}
 				let avg = sum / blockSize
 				filteredData.push(avg); //max
+				peakData.push(peaked);
 			}
 			return filteredData;
 
@@ -132,6 +159,8 @@ export class MusicService {
 			//console.log(buffer)
 			this.currentAudioChunks = buffer;
 			this.playing = true;
+			this.currentSong=song;
+			this.peakData=peakData;
 		}
 
 		const visualizeAudio = (url: RequestInfo) => {
@@ -157,11 +186,30 @@ export class MusicService {
 		visualizeAudio('./assets/' + song.url)
 	}
 
-
+	last:number=0;
+	peak:number=0;
+	lastSlope:number=0;
 	cycleWave(serviceReference: MusicService): void {
 		let index = Math.floor(serviceReference.getTime() / serviceReference.currentVisualRatio);
 		let value = serviceReference.currentAudioChunks ? serviceReference.currentAudioChunks[index] : 0;
 		serviceReference.currentAmp = value;
+		/*let slope=value-this.last; //positive is upwards, negative is downwards
+		if(this.lastSlope>0){
+			if(slope<0){
+				this.peak=1
+			}else{
+				this.peak=0
+			}
+		}else{
+			if(slope>0){
+				this.peak=1
+			}else{
+				this.peak=0
+			}
+		}
+		this.last=value
+		this.lastSlope=slope;*/
+		this.peak=this.peakData[index]
 		/*if (tester && value && tester instanceof HTMLElement) {
 			tester.style.transform = 'scale(1,' + value + ')';
 			temp.currentAmp = value;
@@ -171,5 +219,8 @@ export class MusicService {
 		}*/
 		//console.log(index,value,audioContext.currentTime)
 
+	}
+	getPeak():number{
+		return this.peak
 	}
 }
